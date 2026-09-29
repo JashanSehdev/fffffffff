@@ -1,0 +1,38 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module.js';
+import { JwtModule } from '@nestjs/jwt';
+import { PostModule } from './post/post.module.js';
+import { LikeModule } from './like/like.module.js';
+
+@Module({
+  imports: [
+    JwtModule.register({
+      global: true,
+      secret: 'secret',
+      signOptions: { expiresIn: '600s' },
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT ?? 5432),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      autoLoadEntities: true,
+      synchronize: false,
+    }),
+    UsersModule,
+    PostModule,
+    LikeModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule  {}
